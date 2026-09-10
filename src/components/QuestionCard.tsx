@@ -1,0 +1,73 @@
+import React from 'react';
+import { Question } from '../game/types';
+import { getDivisionById } from '../data';
+import { MapPin, HelpCircle } from 'lucide-react';
+
+interface QuestionCardProps {
+  question: Question;
+  language?: 'en' | 'bn';
+  showDivisionHint?: boolean;
+  onToggleDivisionHint?: () => void;
+  isHintActive?: boolean;
+}
+
+export const QuestionCard: React.FC<QuestionCardProps> = ({
+  question,
+  language = 'en',
+  showDivisionHint = false,
+  onToggleDivisionHint,
+  isHintActive = false,
+}) => {
+  const division = getDivisionById(question.divisionId);
+
+  const mainName = language === 'bn' ? question.nameBn : question.name;
+  const secondaryName = language === 'bn' ? question.name : question.nameBn;
+  const divisionName =
+    language === 'bn' ? division?.nameBn : division?.name;
+
+  return (
+    <div className="w-full max-w-xl mx-auto px-4 py-2">
+      <div className="bg-slate-800/95 border border-slate-700/80 backdrop-blur-md rounded-2xl p-4 shadow-xl text-center relative overflow-hidden">
+        {/* Subtle accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600" />
+
+        <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+          <MapPin size={14} />
+          <span>{language === 'bn' ? 'খুঁজে বের করুন' : 'Find the District'}</span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+            {mainName}
+          </h2>
+          <span className="text-sm md:text-base font-semibold text-slate-400 font-bangla mt-0.5">
+            {secondaryName}
+          </span>
+        </div>
+
+        {/* Division Badge & Optional Hint Button */}
+        <div className="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-700/80 text-slate-300 border border-slate-600/70">
+            {divisionName}{' '}
+            {language === 'bn' ? 'বিভাগ' : 'Division'}
+          </span>
+
+          {showDivisionHint && onToggleDivisionHint && (
+            <button
+              onClick={onToggleDivisionHint}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                isHintActive
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm'
+                  : 'bg-slate-700/60 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
+              }`}
+              title="Highlight division borders on map"
+            >
+              <HelpCircle size={13} />
+              <span>{language === 'bn' ? 'বিভাগ ইঙ্গিত' : 'Division Hint'}</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
