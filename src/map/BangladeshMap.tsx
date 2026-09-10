@@ -41,7 +41,7 @@ export const BangladeshMap: React.FC<BangladeshMapProps> = ({
       <svg
         viewBox={MAP_VIEWBOX}
         preserveAspectRatio="xMidYMid meet"
-        className="w-full h-full max-h-[85vh] drop-shadow-2xl overflow-visible"
+        className="w-full h-full max-h-full max-w-full drop-shadow-2xl overflow-visible"
         role="region"
         aria-label="Interactive Map of Bangladesh Districts"
       >

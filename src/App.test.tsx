@@ -40,8 +40,8 @@ describe('Bangladesh 64 - Full App Flow', () => {
 
     // Question card should be visible
     expect(screen.getByText(/Find the District/i)).toBeInTheDocument();
-    // Scoreboard should show Question: 1 / 10
-    expect(screen.getByText(/1 \/ 10/)).toBeInTheDocument();
+    // Scoreboard should show Question: 1/10
+    expect(screen.getByText(/1\/10/)).toBeInTheDocument();
 
     // Map should have 64 clickable districts
     const mapRegion = screen.getByRole('region', {

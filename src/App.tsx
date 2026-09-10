@@ -71,7 +71,7 @@ export const App: React.FC = () => {
   const currentGameState = useMemo(() => engine.getState(), [engine, screen]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+    <div className="h-screen max-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white overflow-hidden">
       {/* Universal Header */}
       <Header
         language={language}
@@ -80,7 +80,13 @@ export const App: React.FC = () => {
       />
 
       {/* Screen Routing */}
-      <div className="flex-1 flex flex-col justify-center py-4">
+      <main
+        className={`flex-1 flex flex-col min-h-0 ${
+          screen === 'game'
+            ? 'overflow-hidden px-2 py-1 sm:px-4 sm:py-2 justify-center'
+            : 'overflow-y-auto px-4 py-4 sm:py-6 justify-start'
+        }`}
+      >
         {screen === 'home' && (
           <HomeScreen
             language={language}
@@ -107,7 +113,7 @@ export const App: React.FC = () => {
             onHome={() => setScreen('home')}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 };

@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="w-full max-w-5xl mx-auto px-4 py-3 flex items-center justify-between border-b border-slate-800/80">
+    <header className="w-full max-w-5xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between border-b border-slate-800/80 shrink-0 [@media(max-height:500px)_and_(orientation:landscape)]:hidden">
       <button
         onClick={onHomeClick}
         className="flex items-center gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-lg p-1 group transition-colors"

@@ -26,16 +26,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const countOptions = [10, 25, 50, 64];
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col items-center text-center animate-in fade-in duration-200">
+    <div className="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col items-center text-center animate-in fade-in duration-200 overflow-x-hidden">
       {/* Hero Badge */}
-      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold mb-6 shadow-sm">
-        <Sparkles size={14} className="text-emerald-400" />
-        <span>
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px] sm:text-xs font-semibold mb-6 shadow-sm max-w-full">
+        <Sparkles size={13} className="text-emerald-400 shrink-0" />
+        <span className="leading-snug text-center">
           {language === 'bn'
             ? '৬৪ জেলার মানচিত্র কুইজ'
             : '64 Districts Interactive Geography Quiz'}
         </span>
       </div>
+
 
       {/* Main Title */}
       <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
