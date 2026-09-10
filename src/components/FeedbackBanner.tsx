@@ -45,6 +45,10 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
                   ? language === 'bn'
                     ? '✓ সঠিক উত্তর!'
                     : '✓ Correct!'
+                  : result.isTimeout
+                  ? language === 'bn'
+                    ? '⏱ সময় শেষ!'
+                    : "⏱ Time's Up!"
                   : language === 'bn'
                   ? '✕ ভুল উত্তর!'
                   : '✕ Incorrect!'}
@@ -61,6 +65,12 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
                 <span>
                   {result.speedBonus > 0 && `+${result.speedBonus} speed `}
                   {result.streakBonus > 0 && `+${result.streakBonus} streak`}
+                </span>
+              ) : result.isTimeout ? (
+                <span>
+                  {language === 'bn'
+                    ? `৫ সেকেন্ডের সময় শেষ হয়ে গেছে! সঠিক জেলা ছিল ${targetName}।`
+                    : `5-second window expired! Correct was ${targetName}.`}
                 </span>
               ) : (
                 <span>

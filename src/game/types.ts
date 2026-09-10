@@ -19,6 +19,7 @@ export interface AnswerResult {
   speedBonus: number;
   streakBonus: number;
   revealedId?: string;
+  isTimeout?: boolean;
 }
 
 export interface QuestionHistoryItem {

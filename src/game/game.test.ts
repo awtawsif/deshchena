@@ -112,6 +112,7 @@ describe('GameEngine State Machine', () => {
     // Q1: Correct answer
     const res1 = engine.submitAnswer(q1.targetId, Date.now() + 1000);
     expect(res1.isCorrect).toBe(true);
+    expect(res1.streakBonus).toBe(10);
     expect(res1.pointsEarned).toBeGreaterThan(100);
 
     state = engine.getState();
@@ -163,5 +164,31 @@ describe('GameEngine State Machine', () => {
     expect(practiceState.status).toBe('in_progress');
     expect(practiceState.questions).toHaveLength(1);
     expect(practiceState.questions[0].targetId).toBe(q2.targetId);
+  });
+
+  it('handles question timeout correctly via submitTimeout', () => {
+    const engine = new GameEngine(districts);
+    engine.startGame({
+      questionCount: 3,
+      difficulty: 'hard',
+      seed: 99,
+    });
+
+    let state = engine.getState();
+    const q1 = state.currentQuestion!;
+
+    const result = engine.submitTimeout();
+    expect(result.isCorrect).toBe(false);
+    expect(result.isTimeout).toBe(true);
+    expect(result.pointsEarned).toBe(0);
+    expect(result.selectedId).toBe('TIMEOUT');
+    expect(result.targetId).toBe(q1.targetId);
+
+    state = engine.getState();
+    expect(state.status).toBe('evaluating');
+    expect(state.incorrectAnswers).toBe(1);
+    expect(state.streak).toBe(0);
+    expect(state.mistakes).toContain(q1.targetId);
+    expect(state.districtStates[q1.targetId]).toBe('hint');
   });
 });
