@@ -101,7 +101,7 @@ export class GameEngine {
     const scoreResult = calculateScore({
       isCorrect,
       timeTakenMs,
-      currentStreak: this.state.streak,
+      currentStreak: isCorrect ? this.state.streak + 1 : 0,
       difficulty: this.state.config.difficulty,
     });
 
@@ -144,6 +144,75 @@ export class GameEngine {
       speedBonus: scoreResult.speedBonus,
       streakBonus: scoreResult.streakBonus,
       revealedId: isCorrect ? undefined : target.targetId,
+    };
+
+    const totalAnswered = newCorrect + newIncorrect;
+    const accuracy =
+      totalAnswered > 0 ? Math.round((newCorrect / totalAnswered) * 100) : 0;
+
+    this.state = {
+      ...this.state,
+      status: 'evaluating',
+      score: newScore,
+      correctAnswers: newCorrect,
+      incorrectAnswers: newIncorrect,
+      streak: newStreak,
+      bestStreak: newBestStreak,
+      mistakes: updatedMistakes,
+      history: [...this.state.history, historyItem],
+      accuracyPercentage: accuracy,
+      districtStates: newDistrictStates,
+      lastAnswerResult: answerResult,
+    };
+
+    this.notify();
+    return answerResult;
+  }
+
+  public submitTimeout(timestamp?: number): AnswerResult {
+    if (this.state.status !== 'in_progress' || !this.state.currentQuestion) {
+      throw new Error(
+        `Cannot submit timeout when game status is ${this.state.status}`
+      );
+    }
+
+    const now = timestamp || Date.now();
+    const timeTakenMs = Math.max(0, now - this.state.questionStartTime);
+    const target = this.state.currentQuestion;
+
+    const newScore = this.state.score;
+    const newCorrect = this.state.correctAnswers;
+    const newIncorrect = this.state.incorrectAnswers + 1;
+    const newStreak = 0;
+    const newBestStreak = this.state.bestStreak;
+
+    const updatedMistakes = [...this.state.mistakes];
+    if (!updatedMistakes.includes(target.targetId)) {
+      updatedMistakes.push(target.targetId);
+    }
+
+    const historyItem: QuestionHistoryItem = {
+      question: target,
+      selectedId: 'TIMEOUT',
+      isCorrect: false,
+      timeTakenMs,
+      pointsEarned: 0,
+    };
+
+    const newDistrictStates: Record<string, DistrictVisualState> = {
+      ...this.state.districtStates,
+      [target.targetId]: 'hint',
+    };
+
+    const answerResult: AnswerResult = {
+      isCorrect: false,
+      selectedId: 'TIMEOUT',
+      targetId: target.targetId,
+      pointsEarned: 0,
+      speedBonus: 0,
+      streakBonus: 0,
+      revealedId: target.targetId,
+      isTimeout: true,
     };
 
     const totalAnswered = newCorrect + newIncorrect;

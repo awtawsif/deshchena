@@ -26,7 +26,13 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const [showDivisionHint, setShowDivisionHint] = useState(
     state.config.difficulty === 'relaxed'
   );
+  const [timeRemainingMs, setTimeRemainingMs] = useState(5000);
   const advanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isTimed = state.config.difficulty === 'normal' || state.config.difficulty === 'hard';
+  const maxTimeMs = state.config.difficulty === 'hard' ? 5000 : 15000;
+  const isHardMode = state.config.difficulty === 'hard';
+  const effectiveShowLabels = isHardMode ? false : showLabels;
 
   // Subscribe to engine state
   useEffect(() => {
@@ -50,6 +56,34 @@ export const GameScreen: React.FC<GameScreenProps> = ({
       advanceTimerRef.current = null;
     }
   };
+
+  // Question timer effect for timed modes (Normal: 15s, Hard: 5s)
+  useEffect(() => {
+    if (!isTimed || state.status !== 'in_progress' || !state.currentQuestion) {
+      return;
+    }
+
+    const startTime = state.questionStartTime;
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, maxTimeMs - elapsed);
+      setTimeRemainingMs(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        clearAdvanceTimer();
+        engine.submitTimeout();
+        soundManager.playIncorrect();
+
+        // Reveal missed district and auto-advance after 1.8 seconds
+        advanceTimerRef.current = setTimeout(() => {
+          engine.advanceQuestion();
+        }, 1800);
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [isTimed, maxTimeMs, state.status, state.currentIndex, state.questionStartTime, engine]);
 
   const handleDistrictClick = (districtId: string) => {
     if (state.status !== 'in_progress') return;
@@ -88,16 +122,6 @@ export const GameScreen: React.FC<GameScreenProps> = ({
       : null;
 
   return (
-    /*
-     * Layout strategy:
-     *   – Portrait / desktop: flex-col, scoreboard + question card on top, map below.
-     *   – Landscape (short height): flex-row. Left column has all controls;
-     *     right column has the interactive map.  We detect landscape with the
-     *     `@media (orientation: landscape) and (max-height: 600px)` breakpoint
-     *     mapped to Tailwind's `landscape` variant (`short:` via custom plugin).
-     *     Because we can't add a custom plugin here, we use inline style tricks
-     *     combined with Tailwind's built-in `landscape:` variant (Tailwind v3.3+).
-     */
     <div className="w-full h-full flex flex-col landscape:flex-row items-center justify-between max-w-5xl mx-auto animate-in fade-in duration-150 overflow-hidden px-2 sm:px-4">
       {/* Controls column — full-width in portrait, fixed-width sidebar in landscape */}
       <div className="w-full landscape:w-80 landscape:min-w-[240px] shrink-0 landscape:h-full landscape:flex landscape:flex-col landscape:justify-between landscape:max-h-[calc(100vh-7.5rem)] [@media(max-height:500px)_and_(orientation:landscape)]:max-h-[calc(100vh-1.5rem)]">
@@ -119,6 +143,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({
               showDivisionHint={state.config.difficulty === 'relaxed'}
               isHintActive={showDivisionHint}
               onToggleDivisionHint={() => setShowDivisionHint(!showDivisionHint)}
+              isTimed={isTimed}
+              maxTimeMs={maxTimeMs}
+              timeRemainingMs={timeRemainingMs}
+              difficulty={state.config.difficulty}
             />
           )}
 
@@ -134,25 +162,35 @@ export const GameScreen: React.FC<GameScreenProps> = ({
 
         {/* Bottom Controls Toolbar */}
         <footer className="w-full px-3 py-2 shrink-0 flex items-center justify-between border-t border-slate-800/60 text-xs text-slate-400 mt-2 landscape:mt-auto">
-          <button
-            onClick={() => setShowLabels(!showLabels)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
-            title="Toggle district name labels on the map"
-          >
-            {showLabels ? <EyeOff size={13} /> : <Eye size={13} />}
-            <span className="hidden sm:inline landscape:hidden">
-              {language === 'bn'
-                ? showLabels
-                  ? 'লেবেল লুকান'
-                  : 'লেবেল দেখান'
-                : showLabels
-                ? 'Hide Labels'
-                : 'Show Labels'}
-            </span>
-            <span className="sm:hidden landscape:inline">
-              {showLabels ? (language === 'bn' ? 'লুকান' : 'Hide') : (language === 'bn' ? 'দেখান' : 'Labels')}
-            </span>
-          </button>
+          {!isHardMode ? (
+            <button
+              onClick={() => setShowLabels(!showLabels)}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+              title="Toggle district name labels on the map"
+            >
+              {showLabels ? <EyeOff size={13} /> : <Eye size={13} />}
+              <span className="hidden sm:inline landscape:hidden">
+                {language === 'bn'
+                  ? showLabels
+                    ? 'লেবেল লুকান'
+                    : 'লেবেল দেখান'
+                  : showLabels
+                  ? 'Hide Labels'
+                  : 'Show Labels'}
+              </span>
+              <span className="sm:hidden landscape:inline">
+                {showLabels ? (language === 'bn' ? 'লুকান' : 'Hide') : (language === 'bn' ? 'দেখান' : 'Labels')}
+              </span>
+            </button>
+          ) : (
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-900/60 text-slate-600 border border-slate-800 cursor-not-allowed text-[11px]"
+              title="Labels are disabled in Hard mode"
+            >
+              <EyeOff size={13} />
+              <span>{language === 'bn' ? 'লেবেল নিষ্ক্রিয়' : 'Labels Off (Hard)'}</span>
+            </div>
+          )}
 
           <button
             onClick={handleExit}
@@ -172,7 +210,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           districtStates={state.districtStates}
           highlightDivisionId={activeDivisionId}
           onDistrictClick={handleDistrictClick}
-          showLabels={showLabels}
+          showLabels={effectiveShowLabels}
           language={language}
           disabled={state.status === 'evaluating' || state.status === 'completed'}
           className="w-full h-full max-h-[50vh] sm:max-h-[58vh] md:max-h-[64vh] landscape:max-h-[calc(100vh-7.5rem)] [@media(max-height:500px)_and_(orientation:landscape)]:max-h-[calc(100vh-1.5rem)]"

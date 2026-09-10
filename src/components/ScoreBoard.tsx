@@ -61,14 +61,16 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
         {/* Streak */}
         <div
           className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all duration-300 shadow-sm shrink-0 ${
-            streak > 2
-              ? 'bg-amber-950/70 border-amber-600/80 text-amber-300 animate-pulse'
+            streak >= 3
+              ? 'bg-amber-950/80 border-amber-500/80 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.4)] animate-pulse'
+              : streak >= 1
+              ? 'bg-amber-950/50 border-amber-600/60 text-amber-300'
               : 'bg-slate-800/90 border-slate-700/80 text-slate-300'
           }`}
         >
           <Flame
             size={13}
-            className={streak > 2 ? 'text-amber-400' : 'text-slate-500'}
+            className={streak >= 1 ? 'text-amber-400 fill-amber-400/30' : 'text-slate-500'}
           />
           <strong className="text-white">{streak}</strong>
           <span className="text-slate-400 text-[10px]">

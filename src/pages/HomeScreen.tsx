@@ -97,8 +97,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 id: 'normal' as GameDifficulty,
                 labelEn: 'Normal',
                 labelBn: 'সাধারণ',
-                descEn: 'Standard timer & streak bonuses',
-                descBn: 'টাইমার ও ধারাবাহিক বোনাস',
+                descEn: 'Standard 15s timer & streak bonuses',
+                descBn: '১৫ সে. টাইমার ও ধারাবাহিক বোনাস',
               },
               {
                 id: 'hard' as GameDifficulty,

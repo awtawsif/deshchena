@@ -52,4 +52,24 @@ describe('BangladeshMap Component', () => {
     const gazipurBn = screen.getByLabelText(/গাজীপুর district/i);
     expect(gazipurBn).toBeInTheDocument();
   });
+
+  it('renders zoom overlay controls and handles zoom in/out', () => {
+    render(<BangladeshMap />);
+    const zoomInBtn = screen.getByLabelText(/Zoom In/i);
+    const zoomOutBtn = screen.getByLabelText(/Zoom Out/i);
+    const resetBtn = screen.getByLabelText(/Reset View/i);
+
+    expect(zoomInBtn).toBeInTheDocument();
+    expect(zoomOutBtn).toBeInTheDocument();
+    expect(resetBtn).toBeInTheDocument();
+
+    // Zoom out is initially disabled at scale 1.0
+    expect(zoomOutBtn).toBeDisabled();
+    expect(resetBtn).toBeDisabled();
+
+    // Clicking zoom in enables zoom out
+    fireEvent.click(zoomInBtn);
+    expect(zoomOutBtn).not.toBeDisabled();
+    expect(resetBtn).not.toBeDisabled();
+  });
 });
