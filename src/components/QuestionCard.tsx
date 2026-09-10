@@ -1,6 +1,7 @@
 import React from 'react';
 import { Question } from '../game/types';
 import { getDivisionById } from '../data';
+import { calculateLiveSpeedBonus } from '../game/scoring/calculator';
 import { MapPin, HelpCircle, Timer } from 'lucide-react';
 
 interface QuestionCardProps {
@@ -37,14 +38,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const timePercent = Math.min(100, Math.max(0, (timeRemainingMs / maxTimeMs) * 100));
 
   const secondsElapsed = Math.max(0, (maxTimeMs - timeRemainingMs) / 1000);
-  let liveSpeedBonus = 0;
-  if (difficulty === 'relaxed') {
-    liveSpeedBonus = 25;
-  } else if (difficulty === 'normal') {
-    liveSpeedBonus = Math.max(0, Math.min(50, Math.round(50 - secondsElapsed * 5)));
-  } else if (difficulty === 'hard') {
-    liveSpeedBonus = Math.max(0, Math.min(75, Math.round(75 - secondsElapsed * 15)));
-  }
+  const liveSpeedBonus = isTimed ? calculateLiveSpeedBonus(secondsElapsed, difficulty) : 0;
 
   const dangerThreshold = maxTimeMs <= 5000 ? 1.5 : 3.0;
   const warningThreshold = maxTimeMs <= 5000 ? 3.0 : 7.0;

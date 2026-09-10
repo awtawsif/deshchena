@@ -13,6 +13,15 @@ export default {
           gold: '#e6a100',
         },
       },
+      animation: {
+        'bounce-short': 'bounce-short 0.5s ease-in-out',
+      },
+      keyframes: {
+        'bounce-short': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+      },
     },
   },
   plugins: [],

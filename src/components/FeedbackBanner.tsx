@@ -6,12 +6,14 @@ import { getDistrictById } from '../data';
 interface FeedbackBannerProps {
   result: AnswerResult;
   language?: 'en' | 'bn';
+  maxTimeMs?: number;
   onAdvance: () => void;
 }
 
 export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
   result,
   language = 'en',
+  maxTimeMs = 5000,
   onAdvance,
 }) => {
   const selectedDistrict = getDistrictById(result.selectedId);
@@ -69,8 +71,8 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
               ) : result.isTimeout ? (
                 <span>
                   {language === 'bn'
-                    ? `৫ সেকেন্ডের সময় শেষ হয়ে গেছে! সঠিক জেলা ছিল ${targetName}।`
-                    : `5-second window expired! Correct was ${targetName}.`}
+                    ? `${Math.round(maxTimeMs / 1000)} সেকেন্ডের সময় শেষ হয়ে গেছে! সঠিক জেলা ছিল ${targetName}।`
+                    : `${Math.round(maxTimeMs / 1000)}-second window expired! Correct was ${targetName}.`}
                 </span>
               ) : (
                 <span>

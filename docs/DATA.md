@@ -51,7 +51,9 @@ Exactly 64 districts.
   {
     "id": "BD-GAZ",
     "name": "Gazipur",
-    "division_id": "DIV-DHK"
+    "nameBn": "গাজীপুর",
+    "divisionId": "DIV-DHK",
+    "slug": "gazipur"
   }
   ```
 - Geometry: `Polygon` or `MultiPolygon`.

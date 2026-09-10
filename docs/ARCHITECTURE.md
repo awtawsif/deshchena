@@ -35,8 +35,8 @@
 - Pure TypeScript, zero React/DOM imports.
 - Completely testable via Vitest.
 - Interfaces:
-  - `GameMode`: Contract for quiz modes (`find-district`, `multiple-choice`, etc.).
-  - `GameState`: Reactive or reducer-driven state object.
+  - `GameConfig`: Configuration for a game session (question count, difficulty, target pool, seed).
+  - `GameState`: Reactive state object tracking score, streak, history, and district visual states.
   - `QuestionGenerator`: Deterministic question sequence generator (supports PRNG seed for reproducible testing).
   - `Scoring`: Transparent calculation isolated from UI components.
 
@@ -44,9 +44,9 @@
 - SVG-based district path rendering.
 - Maps each district to a semantic state:
   ```ts
-  type DistrictVisualState = 'default' | 'hover' | 'active' | 'correct' | 'incorrect' | 'disabled';
+  type DistrictVisualState = 'default' | 'hover' | 'active' | 'correct' | 'incorrect' | 'hint' | 'disabled';
   ```
-- The game engine only sets district state (e.g. `districtStates.set("BD-GAZ", "correct")`); the renderer maps state to styling and visual transitions.
+- The game engine only sets district state (e.g. `districtStates["BD-GAZ"] = "correct"`); the renderer maps state to styling and visual transitions.
 
 ### 2.3 Canonical Data (`data/` and `src/data/`)
 - Decoupled from GeoJSON properties. GeoJSON contains boundaries and a foreign key `id`.
@@ -55,9 +55,8 @@
 ---
 
 ## 3. Technology Stack
-- **Frontend Framework**: React 18 / 19 + TypeScript (Strict Mode)
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS (lightweight utility styling) + CSS variables for theme tokens
-- **Map Rendering**: Direct SVG with d3-geo projection or pre-projected GeoJSON coordinates
+- **Frontend Framework**: React 18 + TypeScript (Strict Mode)
+- **Build Tool**: Vite 5
+- **Styling**: Tailwind CSS (lightweight utility styling)
+- **Map Rendering**: Direct SVG with d3-geo projection and pre-projected GeoJSON coordinates
 - **Unit & Integration Testing**: Vitest + React Testing Library
-- **Linting & Code Style**: ESLint + Prettier

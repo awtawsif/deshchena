@@ -96,9 +96,11 @@ function roundCoord(c: any): any {
 }
 
 function run() {
-  const sourcePath = path.resolve(
-    '/home/tawsif/.gemini/antigravity-cli/brain/78c4eae8-9c56-4ee3-bdd5-66d0c64c2767/scratch/ahnaf-geo/bangladesh_geojson_adm2_64_districts_zillas.json'
-  );
+  const sourceArg = process.argv[2];
+  if (!sourceArg) {
+    throw new Error('Usage: tsx scripts/prepare-data.ts <path-to-raw-geojson>');
+  }
+  const sourcePath = path.resolve(sourceArg);
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Source file not found at ${sourcePath}`);
   }

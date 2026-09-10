@@ -155,6 +155,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
             <FeedbackBanner
               result={state.lastAnswerResult}
               language={language}
+              maxTimeMs={maxTimeMs}
               onAdvance={handleManualAdvance}
             />
           )}
