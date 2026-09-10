@@ -1,0 +1,50 @@
+[
+  {
+    "id": "DIV-BAR",
+    "name": "Barishal",
+    "nameBn": "বরিশাল",
+    "slug": "barishal"
+  },
+  {
+    "id": "DIV-CTG",
+    "name": "Chattogram",
+    "nameBn": "চট্টগ্রাম",
+    "slug": "chattogram"
+  },
+  {
+    "id": "DIV-DHK",
+    "name": "Dhaka",
+    "nameBn": "ঢাকা",
+    "slug": "dhaka"
+  },
+  {
+    "id": "DIV-KHL",
+    "name": "Khulna",
+    "nameBn": "খুলনা",
+    "slug": "khulna"
+  },
+  {
+    "id": "DIV-MYM",
+    "name": "Mymensingh",
+    "nameBn": "ময়মনসিংহ",
+    "slug": "mymensingh"
+  },
+  {
+    "id": "DIV-RAJ",
+    "name": "Rajshahi",
+    "nameBn": "রাজশাহী",
+    "slug": "rajshahi"
+  },
+  {
+    "id": "DIV-RNG",
+    "name": "Rangpur",
+    "nameBn": "রংপুর",
+    "slug": "rangpur"
+  },
+  {
+    "id": "DIV-SYL",
+    "name": "Sylhet",
+    "nameBn": "সিলেট",
+    "slug": "sylhet"
+  }
+]
