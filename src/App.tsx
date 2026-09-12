@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { districts } from './data';
 import { GameEngine } from './game/engine/GameEngine';
 import { GameConfig } from './game/types';
@@ -114,6 +115,7 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+      <Analytics />
     </div>
   );
 };
