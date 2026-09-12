@@ -2,6 +2,8 @@
 
 > *Can you find all 64?*
 
+**Live:** <https://deshchena.vercel.app/>
+
 A fast, interactive, educational Bangladesh geography quiz game. Locate all 64 districts on an interactive SVG map under time pressure. Built with React, TypeScript, Tailwind CSS, and GeoJSON.
 
 ## Features
@@ -124,6 +126,8 @@ vercel          # production: vercel --prod
 4. Every push to `main` produces a Preview deployment; merges to production can be configured in the project settings.
 
 No environment variables or serverless functions are required.
+
+Production site: <https://deshchena.vercel.app/>
 
 ## Testing
 
