@@ -104,6 +104,27 @@ npm run build
 npm run preview
 ```
 
+## Deployment (Vercel)
+
+This is a fully static SPA — no server, no database. It deploys to Vercel out of the box via the included [`vercel.json`](./vercel.json) (Vite preset, `dist` output, SPA fallback, immutable asset caching).
+
+**Option 1 — CLI:**
+
+```bash
+npm i -g vercel
+vercel login
+vercel          # production: vercel --prod
+```
+
+**Option 2 — Git integration (recommended):**
+
+1. Push to GitHub (CI via `.github/workflows/ci.yml` already validates tests, data, and build).
+2. Import the repo at [vercel.com/new](https://vercel.com/new).
+3. Vercel auto-detects Vite — build command `npm run build`, output `dist`. No manual config needed.
+4. Every push to `main` produces a Preview deployment; merges to production can be configured in the project settings.
+
+No environment variables or serverless functions are required.
+
 ## Testing
 
 The project has 23+ test cases across 4 files:
