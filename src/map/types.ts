@@ -24,6 +24,7 @@ export interface BangladeshMapProps {
   onDistrictClick?: (districtId: string) => void;
   onDistrictHover?: (districtId: string | null) => void;
   showLabels?: boolean;
+  showHoverNames?: boolean;
   language?: 'en' | 'bn';
   disabled?: boolean;
   className?: string;

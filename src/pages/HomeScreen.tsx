@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Play, Sparkles, Compass, ShieldCheck } from 'lucide-react';
-import { GameConfig, GameDifficulty } from '../game/types';
+import { Play, Sparkles, Compass, ShieldCheck, Settings, MousePointer, Tag, HelpCircle } from 'lucide-react';
+import { GameConfig, GameDifficulty, GameSettings } from '../game/types';
+import { loadSettings, saveSettings } from '../utils/settings';
 import { soundManager } from '../utils/audio';
 
 interface HomeScreenProps {
@@ -8,18 +9,72 @@ interface HomeScreenProps {
   onStartGame: (config: GameConfig) => void;
 }
 
+interface ToggleRowProps {
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: () => void;
+}
+
+const ToggleRow: React.FC<ToggleRowProps> = ({
+  icon,
+  label,
+  description,
+  checked,
+  onChange,
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    onClick={onChange}
+    className="w-full flex items-center justify-between gap-3 p-3 rounded-xl border transition-all text-left bg-slate-700/60 border-slate-600/70 hover:bg-slate-700"
+  >
+    <div className="flex items-center gap-3 min-w-0">
+      <span className="text-emerald-400 shrink-0">{icon}</span>
+      <div className="min-w-0">
+        <div className="font-bold text-sm text-slate-100">{label}</div>
+        <div className="text-[11px] text-slate-400 leading-snug">{description}</div>
+      </div>
+    </div>
+    <span
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+        checked ? 'bg-emerald-500' : 'bg-slate-600'
+      }`}
+      aria-hidden="true"
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+          checked ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </span>
+  </button>
+);
+
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   language,
   onStartGame,
 }) => {
   const [questionCount, setQuestionCount] = useState<number>(25);
   const [difficulty, setDifficulty] = useState<GameDifficulty>('normal');
+  const [settings, setSettings] = useState<GameSettings>(() => loadSettings());
+
+  const updateSetting = <K extends keyof GameSettings>(key: K, value: GameSettings[K]) => {
+    soundManager.playClick();
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+    saveSettings(next);
+  };
 
   const handleStart = () => {
     soundManager.playClick();
+    saveSettings(settings);
     onStartGame({
       questionCount,
       difficulty,
+      settings,
     });
   };
 
@@ -131,9 +186,50 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Start Button */}
+        {/* Settings */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-1.5">
+            <Settings size={13} className="text-emerald-400" />
+            {language === 'bn' ? 'সেটিংস' : 'Settings'}
+          </label>
+          <div className="grid sm:grid-cols-3 gap-2">
+            <ToggleRow
+              icon={<MousePointer size={16} />}
+              label={language === 'bn' ? 'হোভারে নাম দেখা' : 'Hover Names'}
+              description={
+                language === 'bn'
+                  ? 'জেলার উপর মাউস রাখলে নাম দেখায়'
+                  : 'Show district names on hover (great on PC)'
+              }
+              checked={settings.showHoverNames}
+              onChange={() => updateSetting('showHoverNames', !settings.showHoverNames)}
+            />
+            <ToggleRow
+              icon={<Tag size={16} />}
+              label={language === 'bn' ? 'নাম লেবেল' : 'District Labels'}
+              description={
+                language === 'bn'
+                  ? 'মানচিত্রে প্রতিটি জেলার নাম দেখায়'
+                  : 'Show permanent district labels on the map'
+              }
+              checked={settings.showLabels}
+              onChange={() => updateSetting('showLabels', !settings.showLabels)}
+            />
+            <ToggleRow
+              icon={<HelpCircle size={16} />}
+              label={language === 'bn' ? 'বিভাগ ইঙ্গিত' : 'Division Hint'}
+              description={
+                language === 'bn'
+                  ? 'প্রশ্নের বিভাগ হাইলাইট করে দেখায়'
+                  : 'Highlight the question division on the map'
+              }
+              checked={settings.showDivisionHint}
+              onChange={() => updateSetting('showDivisionHint', !settings.showDivisionHint)}
+            />
+          </div>
+        </div>
+      </div>
       <button
         onClick={handleStart}
         className="w-full max-w-md py-4 px-8 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-lg md:text-xl shadow-xl shadow-emerald-950/60 hover:shadow-emerald-900/80 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-400/50"

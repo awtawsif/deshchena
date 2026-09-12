@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { GameEngine } from '../game/engine/GameEngine';
-import { GameState } from '../game/types';
+import { DEFAULT_GAME_SETTINGS, GameSettings, GameState } from '../game/types';
 import { BangladeshMap } from '../map/BangladeshMap';
 import { ScoreBoard } from '../components/ScoreBoard';
 import { QuestionCard } from '../components/QuestionCard';
@@ -22,13 +22,20 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   onExitToHome,
 }) => {
   const [state, setState] = useState<GameState>(engine.getState());
-  const [showLabels, setShowLabels] = useState(false);
+  const initialSettings = engine.getState().config.settings;
+  const [showLabels, setShowLabels] = useState(
+    initialSettings?.showLabels ?? DEFAULT_GAME_SETTINGS.showLabels
+  );
   const [showDivisionHint, setShowDivisionHint] = useState(
-    state.config.difficulty === 'relaxed'
+    initialSettings?.showDivisionHint ?? DEFAULT_GAME_SETTINGS.showDivisionHint
   );
   const [timeRemainingMs, setTimeRemainingMs] = useState(5000);
   const advanceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const settings: GameSettings = {
+    ...DEFAULT_GAME_SETTINGS,
+    ...(state.config.settings ?? {}),
+  };
   const isTimed = state.config.difficulty === 'normal' || state.config.difficulty === 'hard';
   const maxTimeMs = state.config.difficulty === 'hard' ? 5000 : 15000;
   const isHardMode = state.config.difficulty === 'hard';
@@ -140,7 +147,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
             <QuestionCard
               question={state.currentQuestion}
               language={language}
-              showDivisionHint={state.config.difficulty === 'relaxed'}
+              showDivisionHint={settings.showDivisionHint}
               isHintActive={showDivisionHint}
               onToggleDivisionHint={() => setShowDivisionHint(!showDivisionHint)}
               isTimed={isTimed}
@@ -212,6 +219,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           highlightDivisionId={activeDivisionId}
           onDistrictClick={handleDistrictClick}
           showLabels={effectiveShowLabels}
+          showHoverNames={settings.showHoverNames}
           language={language}
           disabled={state.status === 'evaluating' || state.status === 'completed'}
           className="w-full h-full max-h-[50vh] sm:max-h-[58vh] md:max-h-[64vh] landscape:max-h-[calc(100vh-7.5rem)] [@media(max-height:500px)_and_(orientation:landscape)]:max-h-[calc(100vh-1.5rem)]"

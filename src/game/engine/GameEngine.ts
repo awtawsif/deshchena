@@ -297,6 +297,7 @@ export class GameEngine {
       questionCount: this.state.mistakes.length,
       difficulty,
       targetPool: this.state.mistakes,
+      settings: this.state.config.settings,
     });
     return practiceEngine;
   }

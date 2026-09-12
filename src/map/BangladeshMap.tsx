@@ -11,6 +11,7 @@ export const BangladeshMap: React.FC<BangladeshMapProps> = ({
   onDistrictClick,
   onDistrictHover,
   showLabels = false,
+  showHoverNames = true,
   language = 'en',
   disabled = false,
   className = '',
@@ -320,7 +321,7 @@ export const BangladeshMap: React.FC<BangladeshMapProps> = ({
       )}
 
       {/* Floating hover badge */}
-      {hoveredDistrict && (
+      {showHoverNames && hoveredDistrict && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-slate-800/90 backdrop-blur-md border border-slate-600 text-sm text-slate-100 shadow-xl pointer-events-none flex items-center gap-2 z-10 transition-all duration-150">
           <span className="font-semibold text-emerald-400">
             {hoveredDistrict.name}

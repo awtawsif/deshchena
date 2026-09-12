@@ -72,4 +72,18 @@ describe('BangladeshMap Component', () => {
     expect(zoomOutBtn).not.toBeDisabled();
     expect(resetBtn).not.toBeDisabled();
   });
+
+  it('shows hover name badge on hover by default', () => {
+    render(<BangladeshMap />);
+    const gazipur = screen.getByLabelText(/Gazipur district/i);
+    fireEvent.mouseEnter(gazipur);
+    expect(screen.getByText('Gazipur')).toBeInTheDocument();
+  });
+
+  it('hides hover name badge when showHoverNames is disabled', () => {
+    render(<BangladeshMap showHoverNames={false} />);
+    const gazipur = screen.getByLabelText(/Gazipur district/i);
+    fireEvent.mouseEnter(gazipur);
+    expect(screen.queryByText('Gazipur')).not.toBeInTheDocument();
+  });
 });

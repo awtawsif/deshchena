@@ -30,11 +30,27 @@ export interface QuestionHistoryItem {
   pointsEarned: number;
 }
 
+export interface GameSettings {
+  // Show district name tooltip at the bottom while hovering a district (PC)
+  showHoverNames: boolean;
+  // Render permanent district name labels on the map
+  showLabels: boolean;
+  // Auto-highlight the question's division on the map
+  showDivisionHint: boolean;
+}
+
+export const DEFAULT_GAME_SETTINGS: GameSettings = {
+  showHoverNames: true,
+  showLabels: false,
+  showDivisionHint: true,
+};
+
 export interface GameConfig {
   questionCount: number; // 10, 25, 50, or 64
   difficulty: GameDifficulty;
   targetPool?: string[]; // Optional specific district IDs (for practice mistakes mode)
   seed?: number; // Optional seed for deterministic question order
+  settings?: Partial<GameSettings>; // Optional UI/UX preferences
 }
 
 export type GameStatus = 'idle' | 'in_progress' | 'evaluating' | 'completed';
