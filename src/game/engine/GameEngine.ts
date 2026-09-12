@@ -7,6 +7,7 @@ import {
   GameConfig,
   GameState,
   QuestionHistoryItem,
+  getDefaultSettingsForDifficulty,
 } from '../types';
 
 export class GameEngine {
@@ -287,17 +288,19 @@ export class GameEngine {
     this.notify();
   }
 
-  public createPracticeSession(difficulty: GameConfig['difficulty'] = 'normal'): GameEngine {
+  public createPracticeSession(): GameEngine {
     if (this.state.mistakes.length === 0) {
       throw new Error('No mistakes to practice!');
     }
 
+    // Practicing mistakes is always a practice session: no timer, all helps on
     const practiceEngine = new GameEngine(this.districts);
     practiceEngine.startGame({
       questionCount: this.state.mistakes.length,
-      difficulty,
+      difficulty: 'relaxed',
+      mode: 'practice',
       targetPool: this.state.mistakes,
-      settings: this.state.config.settings,
+      settings: getDefaultSettingsForDifficulty('relaxed'),
     });
     return practiceEngine;
   }

@@ -8,6 +8,7 @@ interface ScoreBoardProps {
   streak: number;
   startTime: number;
   isPaused?: boolean;
+  isPractice?: boolean;
   language?: 'en' | 'bn';
 }
 
@@ -24,6 +25,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   streak,
   startTime,
   isPaused = false,
+  isPractice = false,
   language = 'en',
 }) => {
   const [elapsed, setElapsed] = useState(0);
@@ -58,8 +60,9 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
           <span className="font-mono">{formatTime(elapsed)}</span>
         </div>
 
-        {/* Streak */}
-        <div
+        {/* Streak — hidden in practice mode */}
+        {!isPractice && (
+          <div
           className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all duration-300 shadow-sm shrink-0 ${
             streak >= 3
               ? 'bg-amber-950/80 border-amber-500/80 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.4)] animate-pulse'
@@ -77,13 +80,16 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
             {language === 'bn' ? 'ধারা' : '×'}
           </span>
         </div>
+        )}
 
-        {/* Score */}
-        <div className="flex items-center gap-1 bg-slate-800/90 border border-slate-700/80 px-2.5 py-1 rounded-lg shadow-sm shrink-0">
+        {/* Score — hidden in practice mode */}
+        {!isPractice && (
+          <div className="flex items-center gap-1 bg-slate-800/90 border border-slate-700/80 px-2.5 py-1 rounded-lg shadow-sm shrink-0">
           <Trophy size={13} className="text-emerald-400" />
           <span className="font-bold text-white">{score.toLocaleString()}</span>
           <span className="text-[10px] text-slate-400">pts</span>
         </div>
+        )}
       </div>
 
       {/* Progress Bar */}

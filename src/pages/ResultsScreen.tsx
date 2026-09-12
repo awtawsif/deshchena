@@ -34,6 +34,8 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
   const totalQuestions = correctAnswers + incorrectAnswers;
 
   const hasMistakes = mistakes.length > 0;
+  const isPractice =
+    state.config.mode === 'practice' || state.config.difficulty === 'relaxed';
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-6 flex flex-col items-center text-center animate-in fade-in duration-200">
@@ -42,9 +44,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
         <Trophy size={15} className="text-emerald-400" />
         <span>
           {accuracyPercentage === 100
-            ? language === 'bn'
+            ? isPractice
+              ? language === 'bn'
+                ? 'নিখুঁত অনুশীলন!'
+                : 'PERFECT PRACTICE!'
+              : language === 'bn'
               ? 'নিখুঁত ফলাফল!'
               : 'PERFECT GAME!'
+            : isPractice
+            ? language === 'bn'
+              ? 'অনুশীলন সমাপ্ত!'
+              : 'PRACTICE COMPLETE!'
             : language === 'bn'
             ? 'খেলা সমাপ্ত!'
             : 'GAME COMPLETE!'}
@@ -80,19 +90,27 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
 
           <div className="h-px md:h-16 w-full md:w-px bg-slate-700" />
 
-          {/* Final Score */}
+          {/* Final Stat — Score in competitive, Correct count in practice */}
           <div className="flex flex-col items-center">
             <div className="text-4xl md:text-5xl font-black text-white tracking-tight">
-              {score.toLocaleString()}
+              {isPractice
+                ? `${correctAnswers}`
+                : score.toLocaleString()}
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-              {language === 'bn' ? 'মোট স্কোর' : 'Total Score'}
+              {isPractice
+                ? language === 'bn'
+                  ? `সঠিক (${correctAnswers}/${totalQuestions})`
+                  : `Correct (${correctAnswers}/${totalQuestions})`
+                : language === 'bn'
+                ? 'মোট স্কোর'
+                : 'Total Score'}
             </span>
           </div>
         </div>
 
         {/* Breakdown Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-700/80">
+        <div className={`grid gap-3 mt-6 pt-6 border-t border-slate-700/80 ${isPractice ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
           <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
             <div className="flex items-center justify-center gap-1 text-emerald-400 text-xs mb-1 font-bold">
               <CheckCircle2 size={14} />
@@ -113,15 +131,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
-            <div className="flex items-center justify-center gap-1 text-amber-400 text-xs mb-1 font-bold">
-              <Flame size={14} />
-              <span>{language === 'bn' ? 'সেরা ধারাবাহিক' : 'Best Streak'}</span>
+          {!isPractice && (
+            <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <div className="flex items-center justify-center gap-1 text-amber-400 text-xs mb-1 font-bold">
+                <Flame size={14} />
+                <span>{language === 'bn' ? 'সেরা ধারাবাহিক' : 'Best Streak'}</span>
+              </div>
+              <div className="text-xl font-black text-white">
+                {bestStreak}
+              </div>
             </div>
-            <div className="text-xl font-black text-white">
-              {bestStreak}
-            </div>
-          </div>
+          )}
 
           <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
             <div className="flex items-center justify-center gap-1 text-teal-400 text-xs mb-1 font-bold">

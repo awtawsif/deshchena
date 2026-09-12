@@ -60,7 +60,7 @@ export const App: React.FC = () => {
 
   const handlePracticeMistakes = () => {
     try {
-      const practiceEngine = engine.createPracticeSession(lastConfig.difficulty);
+      const practiceEngine = engine.createPracticeSession();
       setEngine(practiceEngine);
       setScreen('game');
     } catch (e) {

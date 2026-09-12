@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Play, Sparkles, Compass, ShieldCheck, Settings, MousePointer, Tag, HelpCircle } from 'lucide-react';
-import { GameConfig, GameDifficulty, GameSettings } from '../game/types';
-import { loadSettings, saveSettings } from '../utils/settings';
+import React, { useEffect, useState } from 'react';
+import { Play, Sparkles, Compass, ShieldCheck, Settings, MousePointer, Tag, HelpCircle, GraduationCap, Swords } from 'lucide-react';
+import { GameConfig, GameDifficulty, GameMode, GameSettings, getDefaultSettingsForDifficulty } from '../game/types';
 import { soundManager } from '../utils/audio';
 
 interface HomeScreenProps {
@@ -57,28 +56,44 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   language,
   onStartGame,
 }) => {
+  const [mode, setMode] = useState<GameMode>('competitive');
   const [questionCount, setQuestionCount] = useState<number>(25);
   const [difficulty, setDifficulty] = useState<GameDifficulty>('normal');
-  const [settings, setSettings] = useState<GameSettings>(() => loadSettings());
+  const [settings, setSettings] = useState<GameSettings>(() =>
+    getDefaultSettingsForDifficulty('normal')
+  );
 
-  const updateSetting = <K extends keyof GameSettings>(key: K, value: GameSettings[K]) => {
+  const effectiveDifficulty: GameDifficulty =
+    mode === 'practice' ? 'relaxed' : difficulty;
+
+  // Reset assist settings to the preset defaults for the chosen mode/difficulty
+  useEffect(() => {
+    setSettings(getDefaultSettingsForDifficulty(effectiveDifficulty));
+  }, [mode, effectiveDifficulty]);
+
+  const updateSetting = (key: keyof GameSettings) => {
     soundManager.playClick();
-    const next = { ...settings, [key]: value };
-    setSettings(next);
-    saveSettings(next);
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleStart = () => {
     soundManager.playClick();
-    saveSettings(settings);
     onStartGame({
       questionCount,
-      difficulty,
+      difficulty: effectiveDifficulty,
+      mode,
       settings,
     });
   };
 
   const countOptions = [10, 25, 50, 64];
+
+  const modeCardClass = (active: boolean) =>
+    `p-4 rounded-2xl text-left border transition-all flex items-start gap-3 ${
+      active
+        ? 'bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-950'
+        : 'bg-slate-700/60 border-slate-600/70 text-slate-300 hover:bg-slate-700 hover:text-white'
+    }`;
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col items-center text-center animate-in fade-in duration-200 overflow-x-hidden">
@@ -91,7 +106,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             : '64 Districts Interactive Geography Quiz'}
         </span>
       </div>
-
 
       {/* Main Title */}
       <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
@@ -108,6 +122,52 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       {/* Setup Options Card */}
       <div className="w-full bg-slate-800/90 border border-slate-700/80 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 text-left space-y-6">
+        {/* Game Mode */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+            {language === 'bn' ? 'খেলার ধরন' : 'Game Mode'}
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                soundManager.playClick();
+                setMode('practice');
+              }}
+              className={modeCardClass(mode === 'practice')}
+            >
+              <GraduationCap size={22} className="shrink-0 mt-0.5" />
+              <span>
+                <span className="block font-bold text-sm">Practice</span>
+                <span className="block text-[11px] mt-1 opacity-80 leading-snug">
+                  {language === 'bn'
+                    ? 'সময় নেই · সব সহায়তা চালু · শিখে নিন'
+                    : 'No timer · all helps on · learn the map'}
+                </span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundManager.playClick();
+                setMode('competitive');
+              }}
+              className={modeCardClass(mode === 'competitive')}
+            >
+              <Swords size={22} className="shrink-0 mt-0.5" />
+              <span>
+                <span className="block font-bold text-sm">Competitive</span>
+                <span className="block text-[11px] mt-1 opacity-80 leading-snug">
+                  {language === 'bn'
+                    ? 'টাইমার · স্কোর ও ধারাবাহিক বোনাস'
+                    : 'Timed & scored · streak bonuses'}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+
         {/* Question Count */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
@@ -134,65 +194,67 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </div>
 
-        {/* Difficulty */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-            {language === 'bn' ? 'কঠিনতার স্তর' : 'Difficulty'}
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              {
-                id: 'relaxed' as GameDifficulty,
-                labelEn: 'Relaxed',
-                labelBn: 'সহজ',
-                descEn: 'No timer rush, hints available',
-                descBn: 'সময় চাপ নেই, ইঙ্গিত পাওয়া যাবে',
-              },
-              {
-                id: 'normal' as GameDifficulty,
-                labelEn: 'Normal',
-                labelBn: 'সাধারণ',
-                descEn: 'Standard 15s timer & streak bonuses',
-                descBn: '১৫ সে. টাইমার ও ধারাবাহিক বোনাস',
-              },
-              {
-                id: 'hard' as GameDifficulty,
-                labelEn: 'Hard',
-                labelBn: 'কঠিন',
-                descEn: '5-second pressure window',
-                descBn: '৫ সেকেন্ডে দ্রুত উত্তর',
-              },
-            ].map((diff) => (
-              <button
-                key={diff.id}
-                type="button"
-                onClick={() => {
-                  soundManager.playClick();
-                  setDifficulty(diff.id);
-                }}
-                className={`p-3 rounded-xl text-left border transition-all ${
-                  difficulty === diff.id
-                    ? 'bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-950'
-                    : 'bg-slate-700/60 border-slate-600/70 text-slate-300 hover:bg-slate-700 hover:text-white'
-                }`}
-              >
-                <div className="font-bold text-sm">
-                  {language === 'bn' ? diff.labelBn : diff.labelEn}
-                </div>
-                <div className="text-[11px] opacity-80 mt-1 line-clamp-2">
-                  {language === 'bn' ? diff.descBn : diff.descEn}
-                </div>
-              </button>
-            ))}
+        {/* Difficulty — only applies in competitive mode */}
+        {mode === 'competitive' && (
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              {language === 'bn' ? 'কঠিনতার স্তর' : 'Difficulty'}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                {
+                  id: 'normal' as GameDifficulty,
+                  labelEn: 'Normal',
+                  labelBn: 'সাধারণ',
+                  descEn: 'Standard 15s timer & streak bonuses',
+                  descBn: '১৫ সে. টাইমার ও ধারাবাহিক বোনাস',
+                },
+                {
+                  id: 'hard' as GameDifficulty,
+                  labelEn: 'Hard',
+                  labelBn: 'কঠিন',
+                  descEn: '5-second pressure window',
+                  descBn: '৫ সেকেন্ডে দ্রুত উত্তর',
+                },
+              ].map((diff) => (
+                <button
+                  key={diff.id}
+                  type="button"
+                  onClick={() => {
+                    soundManager.playClick();
+                    setDifficulty(diff.id);
+                  }}
+                  className={`p-3 rounded-xl text-left border transition-all ${
+                    difficulty === diff.id
+                      ? 'bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-950'
+                      : 'bg-slate-700/60 border-slate-600/70 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  <div className="font-bold text-sm">
+                    {language === 'bn' ? diff.labelBn : diff.labelEn}
+                  </div>
+                  <div className="text-[11px] opacity-80 mt-1 line-clamp-2">
+                    {language === 'bn' ? diff.descBn : diff.descEn}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Settings */}
+        {/* Helper Settings */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-1.5">
-            <Settings size={13} className="text-emerald-400" />
-            {language === 'bn' ? 'সেটিংস' : 'Settings'}
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <Settings size={13} className="text-emerald-400" />
+              {language === 'bn' ? 'সহায়তা সেটিংস' : 'Helper Settings'}
+            </label>
+            <span className="text-[10px] text-slate-500">
+              {language === 'bn'
+                ? 'ডিফল্ট মোড অনুযায়ী সাজানো'
+                : 'Defaults adapt to your mode'}
+            </span>
+          </div>
           <div className="grid sm:grid-cols-3 gap-2">
             <ToggleRow
               icon={<MousePointer size={16} />}
@@ -203,7 +265,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   : 'Show district names on hover (great on PC)'
               }
               checked={settings.showHoverNames}
-              onChange={() => updateSetting('showHoverNames', !settings.showHoverNames)}
+              onChange={() => updateSetting('showHoverNames')}
             />
             <ToggleRow
               icon={<Tag size={16} />}
@@ -214,7 +276,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   : 'Show permanent district labels on the map'
               }
               checked={settings.showLabels}
-              onChange={() => updateSetting('showLabels', !settings.showLabels)}
+              onChange={() => updateSetting('showLabels')}
             />
             <ToggleRow
               icon={<HelpCircle size={16} />}
@@ -225,11 +287,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   : 'Highlight the question division on the map'
               }
               checked={settings.showDivisionHint}
-              onChange={() => updateSetting('showDivisionHint', !settings.showDivisionHint)}
+              onChange={() => updateSetting('showDivisionHint')}
             />
           </div>
         </div>
       </div>
+
+      {/* Start Button */}
       <button
         onClick={handleStart}
         className="w-full max-w-md py-4 px-8 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-lg md:text-xl shadow-xl shadow-emerald-950/60 hover:shadow-emerald-900/80 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-400/50"

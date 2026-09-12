@@ -1,7 +1,7 @@
 import { DistrictVisualState } from '../map/types';
 
 export type GameDifficulty = 'relaxed' | 'normal' | 'hard';
-export type GameModeType = 'find-district';
+export type GameMode = 'practice' | 'competitive';
 
 export interface Question {
   id: string;
@@ -42,12 +42,28 @@ export interface GameSettings {
 export const DEFAULT_GAME_SETTINGS: GameSettings = {
   showHoverNames: true,
   showLabels: false,
-  showDivisionHint: true,
+  showDivisionHint: false,
 };
+
+// Default assist settings per difficulty.
+// relaxed = practice (all helps on), normal = balanced (hover only), hard = no helps.
+export function getDefaultSettingsForDifficulty(
+  difficulty: GameDifficulty
+): GameSettings {
+  switch (difficulty) {
+    case 'relaxed':
+      return { showHoverNames: true, showLabels: true, showDivisionHint: true };
+    case 'normal':
+      return { showHoverNames: true, showLabels: false, showDivisionHint: false };
+    case 'hard':
+      return { showHoverNames: false, showLabels: false, showDivisionHint: false };
+  }
+}
 
 export interface GameConfig {
   questionCount: number; // 10, 25, 50, or 64
   difficulty: GameDifficulty;
+  mode?: GameMode; // practice = learn, competitive = timed & scored
   targetPool?: string[]; // Optional specific district IDs (for practice mistakes mode)
   seed?: number; // Optional seed for deterministic question order
   settings?: Partial<GameSettings>; // Optional UI/UX preferences

@@ -2,7 +2,25 @@ import { describe, it, expect } from 'vitest';
 import { calculateScore } from './scoring/calculator';
 import { generateQuestions } from './questions/generator';
 import { GameEngine } from './engine/GameEngine';
+import { getDefaultSettingsForDifficulty } from './types';
 import { districts } from '../data';
+
+describe('Per-difficulty default settings', () => {
+  it('enables all helps for relaxed (practice) mode', () => {
+    const s = getDefaultSettingsForDifficulty('relaxed');
+    expect(s).toEqual({ showHoverNames: true, showLabels: true, showDivisionHint: true });
+  });
+
+  it('keeps hover names only for normal mode', () => {
+    const s = getDefaultSettingsForDifficulty('normal');
+    expect(s).toEqual({ showHoverNames: true, showLabels: false, showDivisionHint: false });
+  });
+
+  it('disables all helps for hard mode', () => {
+    const s = getDefaultSettingsForDifficulty('hard');
+    expect(s).toEqual({ showHoverNames: false, showLabels: false, showDivisionHint: false });
+  });
+});
 
 describe('Scoring Calculator', () => {
   it('returns 0 for incorrect answers and resets streak', () => {
@@ -158,10 +176,13 @@ describe('GameEngine State Machine', () => {
     expect(state.mistakes).toHaveLength(1);
     expect(state.mistakes[0]).toBe(q2.targetId);
 
-    // Practice mistakes session
-    const practiceEngine = engine.createPracticeSession('normal');
+    // Practice mistakes session is always practice mode (relaxed, all helps on)
+    const practiceEngine = engine.createPracticeSession();
     const practiceState = practiceEngine.getState();
     expect(practiceState.status).toBe('in_progress');
+    expect(practiceState.config.mode).toBe('practice');
+    expect(practiceState.config.difficulty).toBe('relaxed');
+    expect(practiceState.config.settings?.showLabels).toBe(true);
     expect(practiceState.questions).toHaveLength(1);
     expect(practiceState.questions[0].targetId).toBe(q2.targetId);
   });

@@ -7,6 +7,7 @@ interface FeedbackBannerProps {
   result: AnswerResult;
   language?: 'en' | 'bn';
   maxTimeMs?: number;
+  showPoints?: boolean;
   onAdvance: () => void;
 }
 
@@ -14,6 +15,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
   result,
   language = 'en',
   maxTimeMs = 5000,
+  showPoints = true,
   onAdvance,
 }) => {
   const selectedDistrict = getDistrictById(result.selectedId);
@@ -55,7 +57,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
                   ? '✕ ভুল উত্তর!'
                   : '✕ Incorrect!'}
               </span>
-              {result.isCorrect && (
+              {result.isCorrect && showPoints && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-800 text-emerald-200 border border-emerald-600">
                   +{result.pointsEarned} pts
                 </span>
@@ -64,10 +66,18 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
 
             <p className="text-xs text-slate-300 mt-0.5">
               {result.isCorrect ? (
-                <span>
-                  {result.speedBonus > 0 && `+${result.speedBonus} speed `}
-                  {result.streakBonus > 0 && `+${result.streakBonus} streak`}
-                </span>
+                showPoints ? (
+                  <span>
+                    {result.speedBonus > 0 && `+${result.speedBonus} speed `}
+                    {result.streakBonus > 0 && `+${result.streakBonus} streak`}
+                  </span>
+                ) : (
+                  <span>
+                    {language === 'bn'
+                      ? 'দারুণ! পরের প্রশ্নে যান।'
+                      : 'Nice! On to the next one.'}
+                  </span>
+                )
               ) : result.isTimeout ? (
                 <span>
                   {language === 'bn'

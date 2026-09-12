@@ -36,10 +36,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     ...DEFAULT_GAME_SETTINGS,
     ...(state.config.settings ?? {}),
   };
+  const mode = state.config.mode ?? (state.config.difficulty === 'relaxed' ? 'practice' : 'competitive');
+  const isPractice = mode === 'practice' || state.config.difficulty === 'relaxed';
   const isTimed = state.config.difficulty === 'normal' || state.config.difficulty === 'hard';
   const maxTimeMs = state.config.difficulty === 'hard' ? 5000 : 15000;
-  const isHardMode = state.config.difficulty === 'hard';
-  const effectiveShowLabels = isHardMode ? false : showLabels;
 
   // Subscribe to engine state
   useEffect(() => {
@@ -140,6 +140,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
             streak={state.streak}
             startTime={state.startTime}
             isPaused={state.status === 'completed'}
+            isPractice={isPractice}
             language={language}
           />
 
@@ -163,6 +164,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
               result={state.lastAnswerResult}
               language={language}
               maxTimeMs={maxTimeMs}
+              showPoints={!isPractice}
               onAdvance={handleManualAdvance}
             />
           )}
@@ -170,35 +172,25 @@ export const GameScreen: React.FC<GameScreenProps> = ({
 
         {/* Bottom Controls Toolbar */}
         <footer className="w-full px-3 py-2 shrink-0 flex items-center justify-between border-t border-slate-800/60 text-xs text-slate-400 mt-2 landscape:mt-auto">
-          {!isHardMode ? (
-            <button
-              onClick={() => setShowLabels(!showLabels)}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
-              title="Toggle district name labels on the map"
-            >
-              {showLabels ? <EyeOff size={13} /> : <Eye size={13} />}
-              <span className="hidden sm:inline landscape:hidden">
-                {language === 'bn'
-                  ? showLabels
-                    ? 'লেবেল লুকান'
-                    : 'লেবেল দেখান'
-                  : showLabels
-                  ? 'Hide Labels'
-                  : 'Show Labels'}
-              </span>
-              <span className="sm:hidden landscape:inline">
-                {showLabels ? (language === 'bn' ? 'লুকান' : 'Hide') : (language === 'bn' ? 'দেখান' : 'Labels')}
-              </span>
-            </button>
-          ) : (
-            <div
-              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-900/60 text-slate-600 border border-slate-800 cursor-not-allowed text-[11px]"
-              title="Labels are disabled in Hard mode"
-            >
-              <EyeOff size={13} />
-              <span>{language === 'bn' ? 'লেবেল নিষ্ক্রিয়' : 'Labels Off (Hard)'}</span>
-            </div>
-          )}
+          <button
+            onClick={() => setShowLabels(!showLabels)}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+            title="Toggle district name labels on the map"
+          >
+            {showLabels ? <EyeOff size={13} /> : <Eye size={13} />}
+            <span className="hidden sm:inline landscape:hidden">
+              {language === 'bn'
+                ? showLabels
+                  ? 'লেবেল লুকান'
+                  : 'লেবেল দেখান'
+                : showLabels
+                ? 'Hide Labels'
+                : 'Show Labels'}
+            </span>
+            <span className="sm:hidden landscape:inline">
+              {showLabels ? (language === 'bn' ? 'লুকান' : 'Hide') : (language === 'bn' ? 'দেখান' : 'Labels')}
+            </span>
+          </button>
 
           <button
             onClick={handleExit}
@@ -218,7 +210,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           districtStates={state.districtStates}
           highlightDivisionId={activeDivisionId}
           onDistrictClick={handleDistrictClick}
-          showLabels={effectiveShowLabels}
+          showLabels={showLabels}
           showHoverNames={settings.showHoverNames}
           language={language}
           disabled={state.status === 'evaluating' || state.status === 'completed'}
